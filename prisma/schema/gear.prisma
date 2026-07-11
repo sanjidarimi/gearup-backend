@@ -1,0 +1,32 @@
+model Category {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  gearItems GearItem[]
+
+  @@map("categories")
+}
+
+model GearItem {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  brand       String?
+  pricePerDay Float
+  stock       Int      @default(1)
+  isAvailable Boolean  @default(true)
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  providerId String
+  provider   User   @relation("ProviderGear", fields: [providerId], references: [id])
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  rentalItems RentalOrderItem[]
+  reviews     Review[]
+
+  @@map("gear_items")
+}
