@@ -4,10 +4,14 @@ import { prisma } from "./lib/prisma";
 const port = config.port;
 async function main() {
   try {
+    await prisma.$connect();
     app.listen(port, () => {
-      
-        console.log(`server is running ${port}` )
+      console.log(`server is running ${port}`);
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log("server error", error);
+    await prisma.$disconnect();
+    process.exit(1);
+  }
 }
 main();
