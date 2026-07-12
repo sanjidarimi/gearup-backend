@@ -1,14 +1,16 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
 import { catchAsync } from "../../utils/CatchAsync";
+import { sendResponse } from "../../utils/sendResponse";
 import { userService } from "./user.service";
 
 const createUser = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
   const user = await userService.createUserIntoDB(payload);
-  res.status(httpStatus.CREATED).json({
+  sendResponse(res, {
     success: true,
-    message: "Registration successful",
+    statusCode: httpStatus.CREATED,
+    message: "user created successfully",
     data: { user },
   });
 });
