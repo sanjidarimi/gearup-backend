@@ -1,8 +1,10 @@
 import bcrypt from "bcryptjs";
-import jwt, { SignOptions } from "jsonwebtoken";
+import { SignOptions } from "jsonwebtoken";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
+import { jwtUtils } from "../../utils/jwt";
 import { IUser } from "./auth.interface";
+
 const createUserIntoDB = async (payload: IUser) => {
   const { name, email, password } = payload;
   const isUserExist = await prisma.user.findUnique({
@@ -40,29 +42,23 @@ const getUserIntoDB = async (payload: IUser) => {
   if (!isPasswordMatched) {
     throw new Error("invalid credential");
   }
-  const accessToken = jwt.sign(
-    {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
+  const jwtPayload = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  };
+  const accessToken = jwtUtils.createToken(
+    jwtPayload,
     config.jwt_access_secret,
-    {
-      expiresIn: config.jwt_access_expires_in as SignOptions["expiresIn"],
-    },
+    config.jwt_access_expires_in as SignOptions,
   );
-  const refreshToken = jwt.sign({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
+  const refreshToken = jwtUtils.createToken(
+    jwtPayload,
     config.jwt_refresh_secret,
-    {
-      expiresIn: config.jwt_refresh_expires_in as SignOptions["expiresIn"],
-    },)
-  return {refreshToken, accessToken};
+    config.jwt_refresh_expires_in as SignOptions,
+  );
+  return { refreshToken, accessToken };
 };
 
 export const authService = {
