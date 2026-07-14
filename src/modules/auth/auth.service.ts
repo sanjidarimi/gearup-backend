@@ -6,7 +6,7 @@ import { jwtUtils } from "../../utils/jwt";
 import { IUser } from "./auth.interface";
 
 const createUserIntoDB = async (payload: IUser) => {
-  const { name, email, password } = payload;
+  const { name, email, password, role } = payload;
   const isUserExist = await prisma.user.findUnique({
     where: { email },
   });
@@ -18,29 +18,34 @@ const createUserIntoDB = async (payload: IUser) => {
     Number(config.bcrypt_salt_rounds),
   );
 
-  const createUser = await prisma.user.create({
+  const newUser = await prisma.user.create({
     data: {
       name,
       email,
       password: hashpassword,
+      role: role,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      createdAt: true,
     },
   });
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: createUser.id,
-      email: createUser.email || email,
-    },
-    omit: { password: true },
-  });
-  return user;
+  return newUser;
 };
 const getUserIntoDB = async (payload: IUser) => {
   const { email, password } = payload;
   const user = await prisma.user.findUniqueOrThrow({ where: { email } });
+ if(user.status ==="SUSPENDED"){
+  throw new Error("your account has been suspended")
+ }
   const isPasswordMatched = await bcrypt.compare(password, user.password);
   if (!isPasswordMatched) {
-    throw new Error("invalid credential");
+    throw new Error("invalid email or password");
   }
   const jwtPayload = {
     id: user.id,
