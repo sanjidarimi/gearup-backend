@@ -23,7 +23,7 @@ export const authorize = (...requiredRoles: UserRole[]) => {
       );
     }
 
-    // 2. Token verify করা
+
     const verifyToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
     if (!verifyToken.success) {
       throw new AppError(
@@ -34,7 +34,7 @@ export const authorize = (...requiredRoles: UserRole[]) => {
 
     const { name, email, role, id } = verifyToken.data as JwtPayload;
 
-    // 3. Role validation (Dynamic check)
+  
     if (requiredRoles.length && !requiredRoles.includes(role)) {
       throw new AppError(
         httpStatus.FORBIDDEN,
