@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
+import config from "../../config";
 import { catchAsync } from "../../utils/CatchAsync";
+import { jwtUtils } from "../../utils/jwt";
 import { sendResponse } from "../../utils/sendResponse";
 import { authService } from "./auth.service";
-
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
   const user = await authService.createUserIntoDB(payload);
@@ -43,12 +44,20 @@ const loginUser = catchAsync(
   },
 );
 
-const getMe = catchAsync(async(req :Request,res:Response)=>{
-  const payload = req.body;
-  console.log("payload",payload)
-})
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const { accessToken } = req.cookies;
+  // console.log(accessToken);
+  // const verifyToken = jwt.verify(accessToken, config.jwt_access_secret);
+  const verifyToken = jwtUtils.verifyToken(
+    accessToken,
+    config.jwt_access_secret,
+  );
+  console.log(verifyToken)
+
+  res.send("get my profile");
+});
 export const authController = {
   registerUser,
   loginUser,
-  getMe
+  getMe,
 };
