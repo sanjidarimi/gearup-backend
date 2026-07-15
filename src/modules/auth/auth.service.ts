@@ -40,9 +40,9 @@ const createUserIntoDB = async (payload: IUser) => {
 const getUserIntoDB = async (payload: IUser) => {
   const { email, password } = payload;
   const user = await prisma.user.findUniqueOrThrow({ where: { email } });
- if(user.status ==="SUSPENDED"){
-  throw new Error("your account has been suspended")
- }
+  if (user.status === "SUSPENDED") {
+    throw new Error("your account has been suspended");
+  }
   const isPasswordMatched = await bcrypt.compare(password, user.password);
   if (!isPasswordMatched) {
     throw new Error("invalid email or password");
@@ -65,11 +65,18 @@ const getUserIntoDB = async (payload: IUser) => {
   );
   return { refreshToken, accessToken };
 };
-const getMe = ()=>{
-
-}
+const getMyProfileIntoDB = (userId: string) => {
+  const userProfile = prisma.user.findFirstOrThrow({
+    where: { id: userId },
+    omit: { password: true },
+    include: {
+      profile: true,
+    },
+  });
+  return userProfile;
+};
 export const authService = {
   createUserIntoDB,
   getUserIntoDB,
-  getMe
+  getMyProfileIntoDB,
 };

@@ -52,9 +52,18 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
     accessToken,
     config.jwt_access_secret,
   );
-  console.log(verifyToken)
+  // console.log(verifyToken)
+  if(typeof verifyToken ==="string"){
+    throw new Error(verifyToken)
+  }
+  const profile = await authService.getMyProfileIntoDB(verifyToken.id);
 
-  res.send("get my profile");
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "user profile",
+    data: { profile },
+  });
 });
 export const authController = {
   registerUser,
