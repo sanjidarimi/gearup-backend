@@ -1,7 +1,10 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Application, type Request, type Response } from "express";
+import httpStatus from "http-status";
 import config from "./config";
+import { AppError } from "./error/AppError";
+import { globalErrorHandler } from "./middleware/globalErrorHandler";
 import { authRoutes } from "./modules/auth/auth.route";
 
 const app: Application = express();
@@ -16,5 +19,15 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use((req, res, next) => {
+  next(
+    new AppError(
+      httpStatus.NOT_FOUND,
+      `API route not found: ${req.originalUrl}`,
+    ),
+  );
+});
+
+app.use(globalErrorHandler);
 
 export default app;
