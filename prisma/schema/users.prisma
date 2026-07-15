@@ -7,7 +7,6 @@ model User {
   status    UserStatus @default(ACTIVE)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-
   gearItems    GearItem[]    @relation("ProviderGear")
   rentalOrders RentalOrder[] @relation("CustomerOrders")
   reviews      Review[]

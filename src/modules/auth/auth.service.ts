@@ -65,8 +65,11 @@ const getUserIntoDB = async (payload: IUser) => {
   );
   return { refreshToken, accessToken };
 };
+const getMe = ()=>{
 
+}
 export const authService = {
   createUserIntoDB,
   getUserIntoDB,
+  getMe
 };

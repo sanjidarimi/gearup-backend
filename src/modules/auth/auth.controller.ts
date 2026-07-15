@@ -4,7 +4,7 @@ import { catchAsync } from "../../utils/CatchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { authService } from "./auth.service";
 
-const createUser = catchAsync(async (req: Request, res: Response) => {
+const registerUser = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
   const user = await authService.createUserIntoDB(payload);
   sendResponse(res, {
@@ -42,7 +42,13 @@ const loginUser = catchAsync(
     });
   },
 );
+
+const getMe = catchAsync(async(req :Request,res:Response)=>{
+  const payload = req.body;
+  console.log("payload",payload)
+})
 export const authController = {
-  createUser,
+  registerUser,
   loginUser,
+  getMe
 };
