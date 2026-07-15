@@ -1,21 +1,42 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
+import httpStatus from "http-status";
+import { sendResponse } from "../../utils/sendResponse";
 import { catchAsync } from "./../../utils/CatchAsync";
 import { gearService } from "./gear.service";
-import { sendResponse } from "../../utils/sendResponse";
-import httpStatus from "http-status"
 
-const getGear = catchAsync(
-  async (req: Request, res : Response) => {
-    
-  const getGear = await gearService.getGearIntoDB(req)
+
+const getGear = catchAsync(async (req: Request, res: Response) => {
+  const result = await gearService.getGearIntoDB();
+  
   sendResponse(res, {
-success: true,
+    success: true,
+    statusCode: httpStatus.OK, 
+    message: "Gears retrieved successfully",
+    data: result, 
+  });
+});
+
+
+const createGear = catchAsync(async (req: Request, res: Response) => {
+
+  const providerId = (req as any).user?.id;
+  
+  const payload = {
+    ...req.body,
+    providerId: providerId || req.body.providerId,
+  };
+
+  const result = await gearService.createGearIntoDB(payload);
+  
+  sendResponse(res, {
+    success: true,
     statusCode: httpStatus.CREATED,
-    message: "get all gear successfully",
-    data: { getGear },
-  })
-  },
-);
+    message: "Gear item created successfully",
+    data: result,
+  });
+});
+
 export const gearController = {
   getGear,
+  createGear,
 };
