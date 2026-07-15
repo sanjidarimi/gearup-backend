@@ -6,6 +6,7 @@ import config from "./config";
 import { AppError } from "./error/AppError";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
 import { authRoutes } from "./modules/auth/auth.route";
+import { gearRoute } from "./modules/gear/gear.route";
 
 const app: Application = express();
 
@@ -19,6 +20,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api", gearRoute);
 app.use((req, res, next) => {
   next(
     new AppError(
