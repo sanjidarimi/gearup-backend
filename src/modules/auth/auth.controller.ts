@@ -17,9 +17,9 @@ const registerUser = catchAsync(async (req: Request, res: Response) => {
 const loginUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const payload = req.body;
-    const user = payload;
-    const { accessToken, refreshToken } =
-      await authService.getUserIntoDB(payload);
+    
+ 
+    const { accessToken, refreshToken, user } = await authService.getUserIntoDB(payload);
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
@@ -27,21 +27,23 @@ const loginUser = catchAsync(
       sameSite: "none",
       maxAge: 1000 * 60 * 60 * 24,
     });
+    
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: false, 
       sameSite: "none",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
+    
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "Login successfully",
-      data: { user },
+      
+      data: { user }, 
     });
   },
 );
-
 const getMe = catchAsync(async (req: Request, res: Response) => {
   const profile = await authService.getMyProfileIntoDB(req.user?.id as string);
   sendResponse(res, {

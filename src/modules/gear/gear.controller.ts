@@ -4,30 +4,25 @@ import { sendResponse } from "../../utils/sendResponse";
 import { catchAsync } from "./../../utils/CatchAsync";
 import { gearService } from "./gear.service";
 
-
 const getGear = catchAsync(async (req: Request, res: Response) => {
   const result = await gearService.getGearIntoDB();
-  
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK, 
+    statusCode: httpStatus.OK,
     message: "Gears retrieved successfully",
-    data: result, 
+    data: result,
   });
 });
 
-
 const createGear = catchAsync(async (req: Request, res: Response) => {
-
-  const providerId = (req as any).user?.id;
-  
+  console.log(req.body.providerId)
   const payload = {
     ...req.body,
-    providerId: providerId || req.body.providerId,
+    providerId: req.body.providerId,
   };
 
   const result = await gearService.createGearIntoDB(payload);
-  
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.CREATED,
