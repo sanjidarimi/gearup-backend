@@ -15,7 +15,7 @@ const getGear = catchAsync(async (req: Request, res: Response) => {
 });
 
 const createGear = catchAsync(async (req: Request, res: Response) => {
-  console.log(req.body.providerId)
+``
   const payload = {
     ...req.body,
     providerId: req.body.providerId,

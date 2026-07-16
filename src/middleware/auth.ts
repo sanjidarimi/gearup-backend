@@ -3,18 +3,19 @@ import httpStatus from "http-status";
 import { JwtPayload } from "jsonwebtoken";
 
 import { UserRole } from "../../generated/prisma/enums";
+import config from "../config";
 import { AppError } from "../error/AppError";
 import { prisma } from "../lib/prisma";
 import { catchAsync } from "../utils/CatchAsync";
 import { jwtUtils } from "../utils/jwt";
-import config from "../config";
 
 export const authorize = (...requiredRoles: UserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // 1. Token extract করা
-    const token = req.headers.authorization?.startsWith("Bearer ")
-      ? req.headers.authorization.split(" ")[1]
-      : req.headers.authorization;
+    const token = req.cookies.accessToken
+      ? req.cookies.accessToken
+      : req.headers.authorization?.startsWith("Bearer ")
+        ? req.headers.authorization.split(" ")[1]
+        : req.headers.authorization;
 
     if (!token) {
       throw new AppError(
@@ -22,7 +23,6 @@ export const authorize = (...requiredRoles: UserRole[]) => {
         "You are not logged in. Please login to access this resource",
       );
     }
-
 
     const verifyToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
     if (!verifyToken.success) {
@@ -34,7 +34,6 @@ export const authorize = (...requiredRoles: UserRole[]) => {
 
     const { name, email, role, id } = verifyToken.data as JwtPayload;
 
-  
     if (requiredRoles.length && !requiredRoles.includes(role)) {
       throw new AppError(
         httpStatus.FORBIDDEN,

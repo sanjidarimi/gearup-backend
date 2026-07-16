@@ -40,41 +40,39 @@ const createUserIntoDB = async (payload: IUser) => {
 const getUserIntoDB = async (payload: IUser) => {
   const { email, password } = payload;
   const user = await prisma.user.findUniqueOrThrow({ where: { email } });
-  
+
   if (user.status === "SUSPENDED") {
     throw new Error("your account has been suspended");
   }
-  
+
   const isPasswordMatched = await bcrypt.compare(password, user.password);
   if (!isPasswordMatched) {
     throw new Error("invalid email or password");
   }
-  
+
   const jwtPayload = {
     id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
   };
-  
   const accessToken = jwtUtils.createToken(
     jwtPayload,
     config.jwt_access_secret,
-    config.jwt_access_expires_in as SignOptions,
+    { expiresIn: config.jwt_access_expires_in } as SignOptions,
   );
-  
+
   const refreshToken = jwtUtils.createToken(
     jwtPayload,
     config.jwt_refresh_secret,
-    config.jwt_refresh_expires_in as SignOptions,
+    { expiresIn: config.jwt_refresh_expires_in } as SignOptions,
   );
-
   const loggedInUser = {
     id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
-    status: user.status
+    status: user.status,
   };
 
   return { refreshToken, accessToken, user: loggedInUser };
