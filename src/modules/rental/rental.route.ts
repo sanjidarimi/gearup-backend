@@ -5,8 +5,13 @@ import { rentalController } from "./rental.controller";
 
 const router = Router();
 router.post(
-  "/rental",
+  "/rentals",
   authorize(UserRole.CUSTOMER),
   rentalController.createRental,
+);
+router.get(
+  "/my-rentals",
+  authorize(UserRole.CUSTOMER),
+  rentalController.getMyRentals,
 );
 export const rentalRoutes = router;
