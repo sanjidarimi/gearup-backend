@@ -17,7 +17,7 @@ const getGearIntoDB = async (query: {
       ...(query.brand && {
         brand: query.brand,
       }),
-      ...(query.minPrice || query.minPrice
+      ...(query.minPrice || query.maxPrice
         ? {
             pricePerDay: {
               gte: query.minPrice,

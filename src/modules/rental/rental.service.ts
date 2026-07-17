@@ -92,8 +92,14 @@ const getMyRentalsFromDB = async (customerId: string) => {
     orderBy: { createdAt: "desc" },
   });
 };
-
+const getSingleRentalFromDB = async (rentalId: string) => {
+  const rental = await prisma.rentalOrderItem.findUnique({
+    where: {id  : rentalId },
+  });
+  return rental
+};
 export const rentalService = {
   createRentalIntoDB,
-  getMyRentalsFromDB
+  getMyRentalsFromDB,
+  getSingleRentalFromDB,
 };

@@ -20,11 +20,8 @@ const getGear = catchAsync(async (req: Request, res: Response) => {
 });
 
 const createGear = catchAsync(async (req: Request, res: Response) => {
-  const payload = {
-    ...req.body,
-    providerId: req.body.providerId,
-  };
-
+  const providerId = req.user?.id;
+  const payload = { ...req.body, providerId };
   const result = await gearService.createGearIntoDB(payload);
 
   sendResponse(res, {
@@ -42,7 +39,7 @@ const getGearById = catchAsync(
     const result = await gearService.getSingleGearIntoDB(id as string);
     sendResponse(res, {
       success: true,
-      statusCode: httpStatus.CREATED,
+      statusCode: httpStatus.OK,
       message: "Get the single gear",
       data: result,
     });

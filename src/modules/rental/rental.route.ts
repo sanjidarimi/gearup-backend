@@ -14,4 +14,5 @@ router.get(
   authorize(UserRole.CUSTOMER),
   rentalController.getMyRentals,
 );
+router.get("/rentals/:id", rentalController.getSingleRental);
 export const rentalRoutes = router;

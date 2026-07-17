@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
+import httpStatus from "http-status";
 import { catchAsync } from "../../utils/CatchAsync";
-import { rentalService } from "./rental.service";
-import httpStatus from "http-status"
 import { sendResponse } from "../../utils/sendResponse";
+import { rentalService } from "./rental.service";
 const createRental = catchAsync(async (req: Request, res: Response) => {
   const customerId = req.user?.id as string;
-  const payload = { ...req.body , customerId};
-  const result = await rentalService.createRentalIntoDB(payload)
+  const payload = { ...req.body, customerId };
+  const result = await rentalService.createRentalIntoDB(payload);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.CREATED,
@@ -24,8 +24,19 @@ const getMyRentals = catchAsync(async (req: Request, res: Response) => {
     message: "My rentals retrieved successfully",
     data: result,
   });
-})
+});
+const getSingleRental = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const result = rentalService.getSingleRentalFromDB(id as string);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "rentals retrieved successfully",
+    data: result,
+  });
+});
 export const rentalController = {
   createRental,
-  getMyRentals
+  getMyRentals,
+  getSingleRental
 };
