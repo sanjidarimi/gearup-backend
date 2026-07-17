@@ -15,4 +15,10 @@ router.get(
   rentalController.getMyRentals,
 );
 router.get("/rentals/:id", rentalController.getSingleRental);
+
+router.patch(
+  "/provider/orders/:id",
+  authorize(UserRole.PROVIDER),
+  rentalController.updateOrderStatus
+);
 export const rentalRoutes = router;

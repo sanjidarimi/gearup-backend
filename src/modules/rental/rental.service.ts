@@ -1,4 +1,5 @@
 import httpStatus from "http-status";
+import { RentalStatus } from "../../../generated/prisma/enums";
 import { AppError } from "../../error/AppError";
 import { prisma } from "../../lib/prisma";
 import { IRentalOrderPayload } from "./rental.interface";
@@ -42,7 +43,7 @@ const createRentalIntoDB = async (payload: IRentalOrderPayload) => {
       const itemTotalPrice = gear.pricePerDay * totalDays * item.quantity;
       calculateTotalPrice += itemTotalPrice;
 
-       await tx.gearItem.update({
+      await tx.gearItem.update({
         where: { id: item.gearItemId },
         data: {
           stock: gear.stock - item.quantity,
@@ -54,30 +55,29 @@ const createRentalIntoDB = async (payload: IRentalOrderPayload) => {
         quantity: item.quantity,
         price: gear.pricePerDay,
       });
-   
     }
-       const order = await tx.rentalOrder.create({
-        data: {
-          customerId,
-          startDate: start,
-          endDate: end,
-          totalAmount: calculateTotalPrice,
-          items: {
-            create: itemToCreate,
-          },
+    const order = await tx.rentalOrder.create({
+      data: {
+        customerId,
+        startDate: start,
+        endDate: end,
+        totalAmount: calculateTotalPrice,
+        items: {
+          create: itemToCreate,
         },
-        include: {
-          items: {
-            include: {
-              gearItem: {
-                select: { name: true, brand: true },
-              },
+      },
+      include: {
+        items: {
+          include: {
+            gearItem: {
+              select: { name: true, brand: true },
             },
           },
         },
-      });
+      },
+    });
 
-      return order;
+    return order;
   });
   return newOrder;
 };
@@ -94,15 +94,62 @@ const getMyRentalsFromDB = async (customerId: string) => {
     orderBy: { createdAt: "desc" },
   });
 };
-const
-getSingleRentalFromDB = async (rentalId: string) => {
+const getSingleRentalFromDB = async (rentalId: string) => {
   const rental = await prisma.rentalOrder.findUnique({
-    where: {id  : rentalId },
+    where: { id: rentalId },
   });
-  return rental
+  return rental;
+};
+const updateOrderStatusInDB = async (
+  orderId: string,
+  providerId: string,
+  newStatus: RentalStatus,
+) => {
+  return await prisma.$transaction(async (tx) => {
+    const order = await tx.rentalOrder.findUnique({
+      where: { id: orderId },
+      include: {
+        items: {
+          include: { gearItem: true },
+        },
+      },
+    });
+
+    if (!order) throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+
+    const isOwner = order.items.every(
+      (item) => item.gearItem.providerId === providerId,
+    );
+    if (!isOwner)
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "You are not authorized to update this order",
+      );
+
+    const shouldRestoreStock =
+      newStatus === "CANCELLED" || newStatus === "RETURNED";
+
+    if (shouldRestoreStock) {
+      for (const item of order.items) {
+        await tx.gearItem.update({
+          where: { id: item.gearItemId },
+          data: {
+            stock: { increment: item.quantity },
+            isAvailable: true,
+          },
+        });
+      }
+    }
+
+    return await tx.rentalOrder.update({
+      where: { id: orderId },
+      data: { status: newStatus },
+    });
+  });
 };
 export const rentalService = {
   createRentalIntoDB,
   getMyRentalsFromDB,
   getSingleRentalFromDB,
+  updateOrderStatusInDB,
 };
