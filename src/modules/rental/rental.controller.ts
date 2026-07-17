@@ -27,11 +27,11 @@ const getMyRentals = catchAsync(async (req: Request, res: Response) => {
 });
 const getSingleRental = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
-  const result = rentalService.getSingleRentalFromDB(id as string);
+  const result = await rentalService.getSingleRentalFromDB(id as string);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "rentals retrieved successfully",
+    message: "Rental order details retrieved successfully",
     data: result,
   });
 });

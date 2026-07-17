@@ -41,7 +41,8 @@ const createRentalIntoDB = async (payload: IRentalOrderPayload) => {
       }
       const itemTotalPrice = gear.pricePerDay * totalDays * item.quantity;
       calculateTotalPrice += itemTotalPrice;
-      const updatedGear = await tx.gearItem.update({
+
+       await tx.gearItem.update({
         where: { id: item.gearItemId },
         data: {
           stock: gear.stock - item.quantity,
@@ -53,7 +54,9 @@ const createRentalIntoDB = async (payload: IRentalOrderPayload) => {
         quantity: item.quantity,
         price: gear.pricePerDay,
       });
-      const order = await tx.rentalOrder.create({
+   
+    }
+       const order = await tx.rentalOrder.create({
         data: {
           customerId,
           startDate: start,
@@ -75,7 +78,6 @@ const createRentalIntoDB = async (payload: IRentalOrderPayload) => {
       });
 
       return order;
-    }
   });
   return newOrder;
 };
@@ -92,8 +94,9 @@ const getMyRentalsFromDB = async (customerId: string) => {
     orderBy: { createdAt: "desc" },
   });
 };
-const getSingleRentalFromDB = async (rentalId: string) => {
-  const rental = await prisma.rentalOrderItem.findUnique({
+const
+getSingleRentalFromDB = async (rentalId: string) => {
+  const rental = await prisma.rentalOrder.findUnique({
     where: {id  : rentalId },
   });
   return rental
