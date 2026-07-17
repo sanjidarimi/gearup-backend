@@ -1,9 +1,39 @@
-import {  GearItem, Prisma } from "../../../generated/prisma/client";
+import { GearItem, Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
-const getGearIntoDB = async (): Promise<GearItem[]> => {
-  const gearItems = await prisma.gearItem.findMany({
-    include: {
+const getGearIntoDB = async (query: {
+  category?: string;
+  brand?: string;
+  minPrice?: number;
+  maxPrice?: number;
+}) => {
+  return await prisma.gearItem.findMany({
+    where: {
+      ...(query.category && {
+        category: {
+          name: query.category,
+        },
+      }),
+      ...(query.brand && {
+        brand: query.brand,
+      }),
+      ...(query.minPrice || query.minPrice
+        ? {
+            pricePerDay: {
+              gte: query.minPrice,
+              lte: query.maxPrice,
+            },
+          }
+        : {}),
+    },
+    select: {
+      id: true,
+      name: true,
+      brand: true,
+      pricePerDay: true,
+      stock: true,
+      imageUrl: true,
+      isAvailable: true,
       category: {
         select: {
           name: true,
@@ -11,19 +41,26 @@ const getGearIntoDB = async (): Promise<GearItem[]> => {
       },
     },
   });
-  return gearItems;
 };
 
 const createGearIntoDB = async (
-  payload: Prisma.GearItemUncheckedCreateInput
+  payload: Prisma.GearItemUncheckedCreateInput,
 ): Promise<GearItem> => {
   const newGear = await prisma.gearItem.create({
     data: payload,
   });
   return newGear;
 };
-
+const getSingleGearIntoDB = async (gearId: string) => {
+  const gear = await prisma.gearItem.findUniqueOrThrow({
+    where: {
+      id: gearId,
+    },
+  });
+  return gear;
+};
 export const gearService = {
   getGearIntoDB,
   createGearIntoDB,
+  getSingleGearIntoDB,
 };

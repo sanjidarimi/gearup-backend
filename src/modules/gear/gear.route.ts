@@ -1,10 +1,15 @@
 import { Router } from "express";
-import { gearController } from "./gear.controller";
-import { authorize } from "../../middleware/auth";
 import { UserRole } from "../../../generated/prisma/enums";
+import { authorize } from "../../middleware/auth";
+import { gearController } from "./gear.controller";
 
 const router = Router();
 
 router.get("/gear", gearController.getGear);
-router.post("/provider/gear",authorize(UserRole.PROVIDER), gearController.createGear);
+router.get("/gear/:id", gearController.getGearById);
+router.post(
+  "/provider/gear",
+  authorize(UserRole.PROVIDER),
+  gearController.createGear,
+);
 export const gearRoute = router;
