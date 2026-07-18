@@ -1,18 +1,21 @@
 model Payment {
-  id            String         @id @default(uuid())
-  amount        Float
+  id     String @id @default(uuid())
+  amount Float
 
-  transactionId String         @unique
+  transactionId String? @unique
 
-  status        PaymentStatus  @default(PENDING)
+  validationId String? @unique
 
-  paidAt        DateTime?
+  status   PaymentStatus   @default(PENDING)
+  provider PaymentProvider
+  method   String?
 
-  rentalOrderId String         @unique
-  rentalOrder   RentalOrder    @relation(fields: [rentalOrderId], references: [id], onDelete: Cascade)
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  rentalOrderId String
+  rentalOrder   RentalOrder @relation(fields: [rentalOrderId], references: [id], onDelete: Cascade)
 
   @@map("payments")
 }
