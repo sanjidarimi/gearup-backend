@@ -9,6 +9,7 @@ import { authRoutes } from "./modules/auth/auth.route";
 import { categoryRoutes } from "./modules/category/category.route";
 import { gearRoute } from "./modules/gear/gear.route";
 import { rentalRoutes } from "./modules/rental/rental.route";
+import { paymentRoutes } from "./modules/payment/payment.route";
 
 const app: Application = express();
 
@@ -25,7 +26,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api", gearRoute);
 app.use("/api", categoryRoutes);
 app.use("/api", rentalRoutes);
-
+app.use("/api", paymentRoutes)
 app.use((req, res, next) => {
   next(
     new AppError(
