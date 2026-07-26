@@ -26,7 +26,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api", gearRoute);
 app.use("/api", categoryRoutes);
 app.use("/api", rentalRoutes);
-app.use("/api", paymentRoutes)
+app.use("/api/payment", paymentRoutes)
 app.use((req, res, next) => {
   next(
     new AppError(

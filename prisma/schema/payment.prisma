@@ -9,9 +9,7 @@ model Payment {
   paidAt    DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-
-  rentalOrderId String
+  rentalOrderId String @unique
   rentalOrder   RentalOrder @relation(fields: [rentalOrderId], references: [id], onDelete: Cascade)
-
   @@map("payments")
 }
