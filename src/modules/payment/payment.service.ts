@@ -6,7 +6,7 @@ import { stripe } from "../../lib/stripe";
 
 const paymentCreateIntoStripeAndDB = async (
   userId: string,
-  RentalOrderId: string,
+  RentalOrderId: string
 ) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -24,9 +24,9 @@ const paymentCreateIntoStripeAndDB = async (
     throw new AppError(403, "You can only pay for your own order");
   }
 
- if (rentalOrder.status !== "CONFIRMED" && rentalOrder.status !== "PLACED") {
-  throw new AppError(400, "Order is not ready for payment");
-}
+  if (rentalOrder.status !== "CONFIRMED" && rentalOrder.status !== "PLACED") {
+    throw new AppError(400, "Order is not ready for payment");
+  }
 
   const existingPayment = await prisma.payment.findUnique({
     where: { rentalOrderId: rentalOrder.id },
@@ -35,7 +35,9 @@ const paymentCreateIntoStripeAndDB = async (
   if (existingPayment?.status === "COMPLETED") {
     throw new AppError(409, "This order has already been paid");
   }
-  const amountInCents = Math.round(Number(rentalOrder.totalAmount)*100);
+
+  const amountInCents = Math.round(Number(rentalOrder.totalAmount) * 100);
+
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
@@ -46,7 +48,7 @@ const paymentCreateIntoStripeAndDB = async (
           currency: "usd",
           product_data: {
             name: `Rental order ${rentalOrder.id}`,
-            description: `Payment for rental order ID : ${rentalOrder.id}`,
+            description: `Payment for rental order ID: ${rentalOrder.id}`,
           },
           unit_amount: amountInCents,
         },
@@ -60,6 +62,7 @@ const paymentCreateIntoStripeAndDB = async (
       userId: user.id,
     },
   });
+
   const payment = await prisma.payment.upsert({
     where: { rentalOrderId: rentalOrder.id },
     update: {
@@ -75,50 +78,83 @@ const paymentCreateIntoStripeAndDB = async (
       provider: "STRIPE",
     },
   });
+
   return {
     checkoutUrl: session.url,
     paymentId: payment.id,
   };
 };
+
 const handleCheckoutSessionCompleted = async (
-  session: Stripe.Checkout.Session,
+  session: Stripe.Checkout.Session
 ) => {
   const rentalOrderId = session.metadata?.rentalOrderId;
   const transactionId = session.id;
   if (!rentalOrderId) {
     throw new AppError(400, "Missing rentalOrderId in session metadata");
   }
+
   await prisma.$transaction(async (tx) => {
     const payment = await tx.payment.findFirst({
       where: {
         transactionId,
       },
     });
+
     if (!payment) {
       throw new AppError(
         404,
-        `Payment record not found for transaction: ${transactionId}`,
+        `Payment record not found for transaction: ${transactionId}`
       );
     }
+
     if (payment.status === "COMPLETED") {
       return;
     }
+
     await tx.payment.update({
-      where: {
-        id: payment.id,
-      },
+      where: { id: payment.id },
       data: {
         status: "COMPLETED",
         paidAt: new Date(),
       },
     });
+
     await tx.rentalOrder.update({
       where: { id: rentalOrderId },
       data: { status: "PAID" },
     });
   });
 };
+
+const getMyPayments = async (userId: string) => {
+  return prisma.payment.findMany({
+    where: { rentalOrder: { customerId: userId } },
+    include: { rentalOrder: true },
+    orderBy: { createdAt: "desc" },
+  });
+};
+
+const getPaymentById = async (id: string, userId: string, userRole: string) => {
+  const payment = await prisma.payment.findUnique({
+    where: { id },
+    include: { rentalOrder: true },
+  });
+
+  if (!payment) {
+    throw new AppError(404, "Payment not found");
+  }
+
+  if (userRole !== "ADMIN" && payment.rentalOrder.customerId !== userId) {
+    throw new AppError(403, "You are not allowed to view this payment");
+  }
+
+  return payment;
+};
+
 export const paymentService = {
   paymentCreateIntoStripeAndDB,
   handleCheckoutSessionCompleted,
+  getMyPayments,
+  getPaymentById,
 };
