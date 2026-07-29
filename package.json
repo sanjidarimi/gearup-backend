@@ -9,6 +9,7 @@
     "start": "npm run build && node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "stripe:webhook": "stripe listen --forward-to localhost:3000/api/payment/webhook",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

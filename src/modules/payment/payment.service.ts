@@ -1,3 +1,4 @@
+import Stripe from "stripe";
 import config from "../../config";
 import { AppError } from "../../error/AppError";
 import { prisma } from "../../lib/prisma";
@@ -79,6 +80,45 @@ const paymentCreateIntoStripeAndDB = async (
     paymentId: payment.id,
   };
 };
+const handleCheckoutSessionCompleted = async (
+  session: Stripe.Checkout.Session,
+) => {
+  const rentalOrderId = session.metadata?.rentalOrderId;
+  const transactionId = session.id;
+  if (!rentalOrderId) {
+    throw new AppError(400, "Missing rentalOrderId in session metadata");
+  }
+  await prisma.$transaction(async (tx) => {
+    const payment = await tx.payment.findFirst({
+      where: {
+        transactionId,
+      },
+    });
+    if (!payment) {
+      throw new AppError(
+        404,
+        `Payment record not found for transaction: ${transactionId}`,
+      );
+    }
+    if (payment.status === "COMPLETED") {
+      return;
+    }
+    await tx.payment.update({
+      where: {
+        id: payment.id,
+      },
+      data: {
+        status: "COMPLETED",
+        paidAt: new Date(),
+      },
+    });
+    await tx.rentalOrder.update({
+      where: { id: rentalOrderId },
+      data: { status: "PAID" },
+    });
+  });
+};
 export const paymentService = {
   paymentCreateIntoStripeAndDB,
+  handleCheckoutSessionCompleted,
 };
