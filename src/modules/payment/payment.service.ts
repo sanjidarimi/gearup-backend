@@ -24,9 +24,9 @@ const paymentCreateIntoStripeAndDB = async (
     throw new AppError(403, "You can only pay for your own order");
   }
 
-  if (rentalOrder.status !== "CONFIRMED") {
-    throw new AppError(400, "Order is not ready for payment");
-  }
+ if (rentalOrder.status !== "CONFIRMED" && rentalOrder.status !== "PLACED") {
+  throw new AppError(400, "Order is not ready for payment");
+}
 
   const existingPayment = await prisma.payment.findUnique({
     where: { rentalOrderId: rentalOrder.id },
@@ -35,7 +35,7 @@ const paymentCreateIntoStripeAndDB = async (
   if (existingPayment?.status === "COMPLETED") {
     throw new AppError(409, "This order has already been paid");
   }
-  const amountInCents = Math.round(Number(rentalOrder.totalAmount));
+  const amountInCents = Math.round(Number(rentalOrder.totalAmount)*100);
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",

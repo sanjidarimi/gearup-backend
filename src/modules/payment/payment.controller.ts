@@ -13,7 +13,7 @@ const createPaymentCheckout = catchAsync(
       throw new AppError(400, "rentalOrderId is required");
     const result = await paymentService.paymentCreateIntoStripeAndDB(
       userId as string,
-      req.body.RentalOrderId,
+      req.body.rentalOrderId,
     );
     sendResponse(res, {
       success: true,
