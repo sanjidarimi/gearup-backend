@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import Stripe from "stripe";
 import config from "../../config";
 import { stripe } from "../../lib/stripe";
-
 import { catchAsync } from "../../utils/CatchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { paymentService } from "./payment.service";
