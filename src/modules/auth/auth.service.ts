@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
-import { SignOptions } from "jsonwebtoken";
+import { JwtPayload, SignOptions } from "jsonwebtoken";
+import { UserRole } from "../../../generated/prisma/client";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { jwtUtils } from "../../utils/jwt";
@@ -7,12 +8,16 @@ import { IUser } from "./auth.interface";
 
 const createUserIntoDB = async (payload: IUser) => {
   const { name, email, password, role } = payload;
+  if (payload.role === UserRole.ADMIN) {
+    throw new Error("Cannot register as Admin directly");
+  }
   const isUserExist = await prisma.user.findUnique({
     where: { email },
   });
   if (isUserExist) {
     throw new Error("user already existed");
   }
+
   const hashpassword = await bcrypt.hash(
     password,
     Number(config.bcrypt_salt_rounds),
@@ -39,8 +44,10 @@ const createUserIntoDB = async (payload: IUser) => {
 };
 const getUserIntoDB = async (payload: IUser) => {
   const { email, password } = payload;
-  const user = await prisma.user.findUniqueOrThrow({ where: { email } });
-
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    throw new Error("Invalid email or password");
+  }
   if (user.status === "SUSPENDED") {
     throw new Error("your account has been suspended");
   }
@@ -87,8 +94,41 @@ const getMyProfileIntoDB = (userId: string) => {
   });
   return userProfile;
 };
+
+const createRefreshToken = async (refreshToken: string) => {
+  const verifiedRefreshToken = jwtUtils.verifyToken(
+    refreshToken,
+    config.jwt_refresh_secret,
+  );
+  if (!verifiedRefreshToken.success) {
+    throw new Error(verifiedRefreshToken.error);
+  }
+  const { id } = verifiedRefreshToken as JwtPayload;
+  const user = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+  if (user?.status === "SUSPENDED") {
+    throw new Error("User is suspended");
+  }
+  const jwtPayload = {
+    id,
+    name: user?.name,
+    email: user?.email,
+    role: user?.role,
+  };
+
+  const accessToken = jwtUtils.createToken(
+    jwtPayload,
+    config.jwt_access_secret,
+    config.jwt_access_expires_in as SignOptions,
+  );
+  return { accessToken };
+};
 export const authService = {
   createUserIntoDB,
   getUserIntoDB,
   getMyProfileIntoDB,
+  createRefreshToken,
 };

@@ -6,10 +6,11 @@ import { authController } from "./auth.controller";
 const router = Router();
 
 router.post("/register", authController.registerUser);
-router.get("/login", authController.loginUser);
+router.post("/login", authController.loginUser);
 router.get(
   "/get-me",
   authorize(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.PROVIDER),
   authController.getMe,
 );
+router.post("/refresh-token", authController.refreshToken)
 export const authRoutes = router;
