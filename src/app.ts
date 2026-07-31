@@ -25,9 +25,9 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRoutes);
-app.use("/api", gearRoute);
+app.use("/api/gear", gearRoute);
 app.use("/api/provider", providerRouter);
-app.use("/api", categoryRoutes);
+app.use("/api/categories", categoryRoutes);
 app.use("/api", rentalRoutes);
 
 app.use("/api/payment", paymentRoutes);

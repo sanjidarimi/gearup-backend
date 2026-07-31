@@ -3,7 +3,7 @@ import { gearController } from "./gear.controller";
 
 const router = Router();
 
-router.get("/gear", gearController.getGear);
-router.get("/gear/:id", gearController.getGearById);
+router.get("/", gearController.getGear);
+router.get("/:id", gearController.getGearById);
 
 export const gearRoute = router;

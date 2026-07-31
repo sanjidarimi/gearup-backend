@@ -14,11 +14,10 @@ router.get(
   authorize(UserRole.CUSTOMER),
   rentalController.getMyRentals,
 );
-router.get("/rentals/:id", rentalController.getSingleRental);
-
-router.patch(
-  "/provider/orders/:id",
-  authorize(UserRole.PROVIDER),
-  rentalController.updateOrderStatus
+router.get(
+  "/rentals/:id",
+  rentalController.getSingleRental,
+  authorize(UserRole.CUSTOMER),
 );
+
 export const rentalRoutes = router;
