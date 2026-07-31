@@ -17,7 +17,7 @@ const createPayment = catchAsync(async (req: Request, res: Response) => {
 
   const result = await paymentService.paymentCreateIntoStripeAndDB(
     userId,
-    rentalOrderId
+    rentalOrderId,
   );
 
   sendResponse(res, {
@@ -38,11 +38,10 @@ const handleStripeWebhook = catchAsync(async (req: Request, res: Response) => {
   let event: Stripe.Event;
 
   try {
-    
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
-      config.stripe_webhook_secret as string
+      config.stripe_webhook_secret as string,
     );
   } catch (err: any) {
     throw new AppError(400, `Webhook Signature Error: ${err.message}`);
@@ -93,7 +92,11 @@ const getPaymentById = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id as string;
   const role = req.user?.role as string;
 
-  const result = await paymentService.getPaymentById(id as string, userId, role);
+  const result = await paymentService.getPaymentById(
+    id as string,
+    userId,
+    role,
+  );
 
   sendResponse(res, {
     statusCode: 200,

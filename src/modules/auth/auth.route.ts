@@ -12,5 +12,5 @@ router.get(
   authorize(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.PROVIDER),
   authController.getMe,
 );
-router.post("/refresh-token", authController.refreshToken)
+router.post("/refresh-token", authController.refreshToken);
 export const authRoutes = router;

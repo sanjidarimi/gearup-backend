@@ -29,7 +29,11 @@ const getSingleRental = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
   const userId = req.user?.id as string;
   const userRole = req.user?.role as string;
-  const result = await rentalService.getSingleRentalFromDB(id , userId, userRole);
+  const result = await rentalService.getSingleRentalFromDB(
+    id,
+    userId,
+    userRole,
+  );
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -40,7 +44,7 @@ const getSingleRental = catchAsync(async (req: Request, res: Response) => {
 const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
-  console.log(status)
+  console.log(status);
   const providerId = req.user?.id as string;
 
   const result = await rentalService.updateOrderStatusInDB(

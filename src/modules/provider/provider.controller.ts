@@ -60,7 +60,7 @@ const getProviderOrders = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params 
+  const { id } = req.params;
   const providerId = req.user?.id;
   if (!providerId) {
     throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access");
@@ -69,7 +69,11 @@ const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
   if (!status) {
     throw new AppError(httpStatus.BAD_REQUEST, "Status is required");
   }
-  const result = await providerService.updateOrderStatusInDB(id as string, providerId, status);
+  const result = await providerService.updateOrderStatusInDB(
+    id as string,
+    providerId,
+    status,
+  );
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -82,5 +86,5 @@ export const providerController = {
   updateGear,
   deleteGear,
   getProviderOrders,
-  updateOrderStatus
+  updateOrderStatus,
 };

@@ -4,7 +4,7 @@ import { AppError } from "../../error/AppError";
 import httpStatus from "http-status";
 
 const createCategoryIntoDB = async (
-  payload: Prisma.CategoryCreateInput
+  payload: Prisma.CategoryCreateInput,
 ): Promise<Category> => {
   const isCategoryExist = await prisma.category.findUnique({
     where: { name: payload.name },
@@ -13,10 +13,9 @@ const createCategoryIntoDB = async (
   if (isCategoryExist) {
     throw new AppError(
       httpStatus.CONFLICT,
-      `Category with name '${payload.name}' already exists.`
+      `Category with name '${payload.name}' already exists.`,
     );
   }
-
 
   const newCategory = await prisma.category.create({
     data: payload,

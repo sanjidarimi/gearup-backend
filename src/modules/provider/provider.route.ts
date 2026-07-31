@@ -23,5 +23,5 @@ router.delete(
 );
 
 router.get("/orders", providerController.getProviderOrders);
-router.patch("/orders/:id", providerController.updateOrderStatus)
+router.patch("/orders/:id", providerController.updateOrderStatus);
 export const providerRouter = router;

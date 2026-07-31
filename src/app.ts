@@ -13,6 +13,7 @@ import { gearRoute } from "./modules/gear/gear.route";
 import { paymentRoutes } from "./modules/payment/payment.route";
 import { providerRouter } from "./modules/provider/provider.route";
 import { rentalRoutes } from "./modules/rental/rental.route";
+import { reviewRoutes } from "./modules/review/review.route";
 
 const app: Application = express();
 
@@ -33,7 +34,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api", authorize(UserRole.CUSTOMER), rentalRoutes);
 
 app.use("/api/payment", paymentRoutes);
-
+app.use("/api/review", reviewRoutes);
 app.use((req, res, next) => {
   next(
     new AppError(

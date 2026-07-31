@@ -86,7 +86,7 @@ const getProviderOrdersFromDB = async (providerId: string) => {
 const updateOrderStatusInDB = async (
   orderId: string,
   providerId: string,
-  status: RentalStatus
+  status: RentalStatus,
 ) => {
   const order = await prisma.rentalOrder.findFirst({
     where: {
@@ -104,14 +104,17 @@ const updateOrderStatusInDB = async (
   if (!order) {
     throw new AppError(
       httpStatus.NOT_FOUND,
-      "Rental order not found or unauthorized to manage this order"
+      "Rental order not found or unauthorized to manage this order",
     );
   }
 
-  if (order.status === RentalStatus.CANCELLED || order.status === RentalStatus.RETURNED) {
+  if (
+    order.status === RentalStatus.CANCELLED ||
+    order.status === RentalStatus.RETURNED
+  ) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      `Cannot change status of an order that is already ${order.status}`
+      `Cannot change status of an order that is already ${order.status}`,
     );
   }
   const updatedOrderStatus = await prisma.rentalOrder.update({
