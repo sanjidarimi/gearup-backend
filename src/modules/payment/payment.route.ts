@@ -15,6 +15,10 @@ router.get(
   authorize(UserRole.CUSTOMER, UserRole.ADMIN),
   paymentController.confirmPayment,
 );
-router.get("/", authorize(UserRole.CUSTOMER), paymentController.getMyPayments)
-router.get("/:id", authorize(UserRole.CUSTOMER, UserRole.ADMIN), paymentController.getPaymentById)
+router.get("/", authorize(UserRole.CUSTOMER), paymentController.getMyPayments);
+router.get(
+  "/:id",
+  authorize(UserRole.CUSTOMER, UserRole.ADMIN),
+  paymentController.getPaymentById,
+);
 export const paymentRoutes = router;

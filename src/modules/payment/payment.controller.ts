@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Stripe from "stripe";
 import config from "../../config";
+import { AppError } from "../../error/AppError";
 import { stripe } from "../../lib/stripe";
 import { catchAsync } from "../../utils/CatchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -10,9 +11,13 @@ const createPayment = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id as string;
   const { rentalOrderId } = req.body;
 
+  if (!rentalOrderId) {
+    throw new AppError(400, "Rental Order ID is required");
+  }
+
   const result = await paymentService.paymentCreateIntoStripeAndDB(
     userId,
-    rentalOrderId,
+    rentalOrderId
   );
 
   sendResponse(res, {
@@ -27,19 +32,20 @@ const handleStripeWebhook = catchAsync(async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"] as string;
 
   if (!sig) {
-    return res.status(400).send("Missing Stripe signature header");
+    throw new AppError(400, "Missing Stripe signature header");
   }
 
   let event: Stripe.Event;
 
   try {
+    
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
-      config.stripe_webhook_secret as string,
+      config.stripe_webhook_secret as string
     );
   } catch (err: any) {
-    return res.status(400).send(`Webhook Signature Error: ${err.message}`);
+    throw new AppError(400, `Webhook Signature Error: ${err.message}`);
   }
 
   if (event.type === "checkout.session.completed") {
@@ -49,10 +55,15 @@ const handleStripeWebhook = catchAsync(async (req: Request, res: Response) => {
 
   res.status(200).json({ received: true });
 });
+
 const confirmPayment = catchAsync(async (req: Request, res: Response) => {
-  const { session_id } = req.query;
-  console.log(session_id);
-  const session = await stripe.checkout.sessions.retrieve(session_id as string);
+  const sessionId = req.query.session_id as string;
+
+  if (!sessionId) {
+    throw new AppError(400, "Session ID is required");
+  }
+
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
 
   sendResponse(res, {
     statusCode: 200,
@@ -64,6 +75,7 @@ const confirmPayment = catchAsync(async (req: Request, res: Response) => {
     },
   });
 });
+
 const getMyPayments = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id as string;
   const result = await paymentService.getMyPayments(userId);
@@ -81,11 +93,7 @@ const getPaymentById = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id as string;
   const role = req.user?.role as string;
 
-  const result = await paymentService.getPaymentById(
-    id as string,
-    userId,
-    role,
-  );
+  const result = await paymentService.getPaymentById(id as string, userId, role);
 
   sendResponse(res, {
     statusCode: 200,
