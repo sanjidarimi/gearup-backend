@@ -58,6 +58,7 @@ const getProviderOrders = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
 const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params 
   const providerId = req.user?.id;

@@ -11,6 +11,8 @@ import { gearRoute } from "./modules/gear/gear.route";
 import { paymentRoutes } from "./modules/payment/payment.route";
 import { providerRouter } from "./modules/provider/provider.route";
 import { rentalRoutes } from "./modules/rental/rental.route";
+import { authorize } from "./middleware/auth";
+import { UserRole } from "../generated/prisma/enums";
 
 const app: Application = express();
 
@@ -26,11 +28,13 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/gear", gearRoute);
-app.use("/api/provider", providerRouter);
+app.use("/api/provider",authorize(UserRole.PROVIDER), providerRouter);
 app.use("/api/categories", categoryRoutes);
 app.use("/api", rentalRoutes);
 
 app.use("/api/payment", paymentRoutes);
+
+
 app.use((req, res, next) => {
   next(
     new AppError(

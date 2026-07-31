@@ -6,22 +6,22 @@ import { providerController } from "./provider.controller";
 const router = Router();
 router.post(
   "/gear",
-  authorize(UserRole.PROVIDER),
+
   providerController.createGear,
 );
 
 router.put(
   "/gear/:id",
-  authorize(UserRole.PROVIDER),
+
   providerController.updateGear,
 );
 
 router.delete(
   "/gear/:id",
-  authorize(UserRole.PROVIDER),
+
   providerController.deleteGear,
 );
 
 router.get("/orders", providerController.getProviderOrders);
-
+router.patch("/orders/:id", providerController.updateOrderStatus)
 export const providerRouter = router;

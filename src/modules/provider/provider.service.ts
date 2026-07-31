@@ -1,7 +1,12 @@
 import httpStatus from "http-status";
-import { GearItem, Prisma, RentalStatus } from "../../../generated/prisma/client";
+import {
+  GearItem,
+  Prisma,
+  RentalStatus,
+} from "../../../generated/prisma/client";
 import { AppError } from "../../error/AppError";
 import { prisma } from "../../lib/prisma";
+
 const createGearIntoDB = async (
   payload: Prisma.GearItemUncheckedCreateInput,
 ): Promise<GearItem> => {
@@ -40,7 +45,7 @@ const deleteGearFromDB = async (gearId: string, providerId: string) => {
   return deleted;
 };
 const getProviderOrdersFromDB = async (providerId: string) => {
-  const providerOrder = await prisma.rentalOrder.findMany({
+  const providerOrders = await prisma.rentalOrder.findMany({
     where: {
       items: {
         some: {
@@ -58,15 +63,15 @@ const getProviderOrdersFromDB = async (providerId: string) => {
           email: true,
         },
       },
+      payment: true,
       items: {
         where: {
           gearItem: {
             providerId: providerId,
           },
-          include: {
-            gearItem: true,
-          },
-          payment: true,
+        },
+        include: {
+          gearItem: true,
         },
       },
     },
@@ -74,12 +79,14 @@ const getProviderOrdersFromDB = async (providerId: string) => {
       createdAt: "desc",
     },
   });
-  return providerOrder;
+
+  return providerOrders;
 };
+
 const updateOrderStatusInDB = async (
   orderId: string,
   providerId: string,
-  status: RentalStatus,
+  status: RentalStatus
 ) => {
   const order = await prisma.rentalOrder.findFirst({
     where: {
@@ -93,16 +100,26 @@ const updateOrderStatusInDB = async (
       },
     },
   });
+
   if (!order) {
     throw new AppError(
       httpStatus.NOT_FOUND,
-      "Rental order not found or unauthorized to manage this order",
+      "Rental order not found or unauthorized to manage this order"
     );
   }
-  const updateOrderStatus = await prisma.rentalOrder.update({
+
+  if (order.status === RentalStatus.CANCELLED || order.status === RentalStatus.RETURNED) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Cannot change status of an order that is already ${order.status}`
+    );
+  }
+  const updatedOrderStatus = await prisma.rentalOrder.update({
     where: { id: orderId },
     data: { status },
   });
+
+  return updatedOrderStatus;
 };
 
 export const providerService = {

@@ -84,16 +84,6 @@ const getUserIntoDB = async (payload: IUser) => {
 
   return { refreshToken, accessToken, user: loggedInUser };
 };
-const getMyProfileIntoDB = (userId: string) => {
-  const userProfile = prisma.user.findFirstOrThrow({
-    where: { id: userId },
-    omit: { password: true },
-    include: {
-      profile: true,
-    },
-  });
-  return userProfile;
-};
 
 const createRefreshToken = async (refreshToken: string) => {
   const verifiedRefreshToken = jwtUtils.verifyToken(
@@ -125,6 +115,16 @@ const createRefreshToken = async (refreshToken: string) => {
     config.jwt_access_expires_in as SignOptions,
   );
   return { accessToken };
+};
+const getMyProfileIntoDB = (userId: string) => {
+  const userProfile = prisma.user.findFirstOrThrow({
+    where: { id: userId },
+    omit: { password: true },
+    include: {
+      profile: true,
+    },
+  });
+  return userProfile;
 };
 export const authService = {
   createUserIntoDB,
