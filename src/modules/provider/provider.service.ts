@@ -1,7 +1,7 @@
-
-import { GearItem, Prisma } from "../../../generated/prisma/client";
+import httpStatus from "http-status";
+import { GearItem, Prisma, RentalStatus } from "../../../generated/prisma/client";
+import { AppError } from "../../error/AppError";
 import { prisma } from "../../lib/prisma";
-
 const createGearIntoDB = async (
   payload: Prisma.GearItemUncheckedCreateInput,
 ): Promise<GearItem> => {
@@ -10,6 +10,7 @@ const createGearIntoDB = async (
   });
   return newGear;
 };
+
 const updateGearInDB = async (
   gearId: string,
   providerId: string,
@@ -24,17 +25,90 @@ const updateGearInDB = async (
   });
   return updatedGearItem;
 };
+
 const deleteGearFromDB = async (gearId: string, providerId: string) => {
-  await prisma.gearItem.findFirstOrThrow({
+  const deleted = await prisma.gearItem.deleteMany({
     where: { id: gearId, providerId },
   });
-  const deleteGear = await prisma.gearItem.delete({
-    where: { id: gearId },
+  if (deleted.count === 0) {
+    throw new AppError(
+      404,
+      "Gear item not found or you are not authorized to delete this item",
+    );
+  }
+
+  return deleted;
+};
+const getProviderOrdersFromDB = async (providerId: string) => {
+  const providerOrder = await prisma.rentalOrder.findMany({
+    where: {
+      items: {
+        some: {
+          gearItem: {
+            providerId: providerId,
+          },
+        },
+      },
+    },
+    include: {
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      items: {
+        where: {
+          gearItem: {
+            providerId: providerId,
+          },
+          include: {
+            gearItem: true,
+          },
+          payment: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
-  return deleteGear
+  return providerOrder;
+};
+const updateOrderStatusInDB = async (
+  orderId: string,
+  providerId: string,
+  status: RentalStatus,
+) => {
+  const order = await prisma.rentalOrder.findFirst({
+    where: {
+      id: orderId,
+      items: {
+        some: {
+          gearItem: {
+            providerId: providerId,
+          },
+        },
+      },
+    },
+  });
+  if (!order) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "Rental order not found or unauthorized to manage this order",
+    );
+  }
+  const updateOrderStatus = await prisma.rentalOrder.update({
+    where: { id: orderId },
+    data: { status },
+  });
 };
 
-
 export const providerService = {
-    updateGearInDB, deleteGearFromDB, createGearIntoDB
-}
+  updateGearInDB,
+  deleteGearFromDB,
+  createGearIntoDB,
+  getProviderOrdersFromDB,
+  updateOrderStatusInDB,
+};
