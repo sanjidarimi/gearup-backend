@@ -35,6 +35,14 @@ app.use("/api", authorize(UserRole.CUSTOMER), rentalRoutes);
 
 app.use("/api/payment", paymentRoutes);
 app.use("/api/review", reviewRoutes);
+
+app.get("/api/payments/success", (req, res) => {
+  res.send({
+    message:
+      "Payment completed! You can close this tab and check your order status in the app.",
+  });
+});
+
 app.use((req, res, next) => {
   next(
     new AppError(
