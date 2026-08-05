@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsc",
-    "start": "node server.js",
+    "start": "node --import tsx src/server.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "stripe:webhook": "stripe listen --forward-to localhost:3000/api/payment/webhook",
@@ -26,7 +26,6 @@
     "@types/pg": "^8.20.0",
     "prettier": "^3.9.6",
     "prisma": "^7.8.0",
-    "tsx": "^4.23.0",
     "typescript": "^7.0.2"
   },
   "dependencies": {
@@ -41,6 +40,7 @@
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.22.0",
     "stripe": "^22.3.2",
+    "tsx": "^4.23.0",
     "zod": "^4.4.3"
   }
 }
