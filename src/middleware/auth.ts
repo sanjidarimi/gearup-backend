@@ -25,6 +25,7 @@ export const authorize = (...requiredRoles: UserRole[]) => {
     }
 
     const verifyToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
+    console.log("verify token", verifyToken);
     if (!verifyToken.success) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
@@ -41,7 +42,6 @@ export const authorize = (...requiredRoles: UserRole[]) => {
       );
     }
 
-    // 4. Database-এ user-এর বর্তমান স্ট্যাটাস চেক করা
     const user = await prisma.user.findUnique({
       where: { id },
     });
@@ -57,10 +57,8 @@ export const authorize = (...requiredRoles: UserRole[]) => {
       );
     }
 
-    // 5. Request object-এ user data অ্যাসাইন করা
     req.user = { id, email, name, role };
 
-    // 6. পরবর্তী কন্ট্রোলারে পাস করা
     next();
   });
 };

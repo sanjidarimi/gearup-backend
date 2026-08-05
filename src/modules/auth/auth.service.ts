@@ -82,7 +82,7 @@ const getUserIntoDB = async (payload: IUser) => {
     status: user.status,
   };
 
-  return { refreshToken, accessToken, user: loggedInUser };
+  return { accessToken, refreshToken, user: loggedInUser };
 };
 
 const createRefreshToken = async (refreshToken: string) => {
