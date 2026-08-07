@@ -25,7 +25,7 @@ export const authorize = (...requiredRoles: UserRole[]) => {
     }
 
     const verifyToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
-    console.log("verify token", verifyToken);
+
     if (!verifyToken.success) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,

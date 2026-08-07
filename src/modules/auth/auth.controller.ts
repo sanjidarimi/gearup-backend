@@ -44,12 +44,13 @@ const loginUser = catchAsync(
   },
 );
 const getMe = catchAsync(async (req: Request, res: Response) => {
-  const profile = await authService.getMyProfileIntoDB(req.user?.id as string);
+  const userProfile = await authService.getMyProfileIntoDB(req.user!.id);
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "user profile",
-    data: { profile },
+    message: "User profile retrieved successfully",
+    data: userProfile,
   });
 });
 const refreshToken = catchAsync(
