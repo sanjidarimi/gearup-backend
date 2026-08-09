@@ -18,7 +18,12 @@ import { reviewRoutes } from "./modules/review/review.route";
 const app: Application = express();
 
 app.use("/api/payment/webhook", express.raw({ type: "application/json" }));
-app.use(cors({ origin: config.app_url, credentials: true }));
+app.use(
+  cors({
+    origin: config.app_url,
+    credentials: true,
+  }),
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
