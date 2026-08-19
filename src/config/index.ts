@@ -15,4 +15,7 @@ export default {
   stripe_webhook_secret: process.env.STRIPE_WEBHOOK_SECRET!,
   client_success_url: process.env.CLIENT_SUCCESS_URL!,
   client_cencel_url: process.env.CLIENT_CENCEL_URL!,
+  SEED_ADMIN_NAME: process.env.SEED_ADMIN_NAME,
+  SEED_ADMIN_EMAIL: process.env.SEED_ADMIN_EMAIL,
+  SEED_ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD,
 };

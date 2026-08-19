@@ -223,6 +223,11 @@ STRIPE_WEBHOOK_SECRET="whsec_xxxxxxxxx"
 CLIENT_URL=http://localhost:3000
 CLIENT_SUCCESS_URL=http://localhost:3000/payment/success
 CLIENT_CANCEL_URL=http://localhost:3000/payment/cancel
+
+# Seed Admin
+SEED_ADMIN_NAME="Admin"
+SEED_ADMIN_EMAIL="admin@example.com"
+SEED_ADMIN_PASSWORD="your-secure-password"
 ```
 
 ---

@@ -11,6 +11,7 @@
     "prisma:migrate": "prisma migrate deploy",
     "stripe:webhook": "stripe listen --forward-to localhost:3000/api/payment/webhook",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "seed": "tsx src/seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
