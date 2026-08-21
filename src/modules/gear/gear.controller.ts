@@ -10,6 +10,10 @@ const getGear = catchAsync(async (req: Request, res: Response) => {
     brand: req.query.brand as string,
     minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
     maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
+    search: req.query.search as string,
+    isAvailable: req.query.isAvailable === "true",
+    page: req.query.page ? Number(req.query.page) : undefined,
+    limit: req.query.limit ? Number(req.query.limit) : undefined,
   });
   sendResponse(res, {
     success: true,
