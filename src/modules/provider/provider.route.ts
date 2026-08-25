@@ -1,18 +1,17 @@
 import { Router } from "express";
-import { UserRole } from "../../../generated/prisma/enums";
-import { authorize } from "../../middleware/auth";
 import { providerController } from "./provider.controller";
+import { fileUploader } from "../../helpers/fileUploader";
 
 const router = Router();
 router.post(
   "/gear",
-
+  fileUploader.upload.single("file"),
   providerController.createGear,
 );
 
 router.put(
   "/gear/:id",
-
+  fileUploader.upload.single("file"),
   providerController.updateGear,
 );
 

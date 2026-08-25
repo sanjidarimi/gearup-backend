@@ -7,8 +7,10 @@ import { providerService } from "./provider.service";
 
 const createGear = catchAsync(async (req: Request, res: Response) => {
   const providerId = req.user?.id;
-  const payload = { ...req.body, providerId };
-  const result = await providerService.createGearIntoDB(payload);
+  const bodyData = req.body.data ? JSON.parse(req.body.data) : req.body;
+  const payload = { ...bodyData, providerId };
+
+  const result = await providerService.createGearIntoDB(payload, req.file);
 
   sendResponse(res, {
     success: true,
@@ -21,9 +23,15 @@ const createGear = catchAsync(async (req: Request, res: Response) => {
 const updateGear = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
   const providerId = req.user?.id as string;
-  const payload = req.body;
 
-  const result = await providerService.updateGearInDB(id, providerId, payload);
+  const bodyData = req.body.data ? JSON.parse(req.body.data) : req.body;
+  const result = await providerService.updateGearInDB(
+    id,
+    providerId,
+    bodyData,
+    req.file,
+  );
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -81,6 +89,7 @@ const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
 export const providerController = {
   createGear,
   updateGear,

@@ -6,10 +6,17 @@ import {
 } from "../../../generated/prisma/client";
 import { AppError } from "../../error/AppError";
 import { prisma } from "../../lib/prisma";
+import { uploadToCloudinary } from "../../helpers/uploadToCloudinary";
 
 const createGearIntoDB = async (
   payload: Prisma.GearItemUncheckedCreateInput,
+  file?: Express.Multer.File,
 ): Promise<GearItem> => {
+  if (file) {
+    const uploadResult = await uploadToCloudinary(file);
+    payload.imageUrl = uploadResult.secure_url;
+  }
+
   const newGear = await prisma.gearItem.create({
     data: payload,
   });
@@ -20,10 +27,19 @@ const updateGearInDB = async (
   gearId: string,
   providerId: string,
   payload: Partial<GearItem>,
-) => {
+  file?: Express.Multer.File,
+): Promise<GearItem> => {
+  // চেক করা হচ্ছে গিয়ারটি এক্সিস্ট করে কিনা এবং ইউজার অথরাইজড কিনা
   await prisma.gearItem.findFirstOrThrow({
     where: { id: gearId, providerId },
   });
+
+  // যদি আপডেট করার সময় নতুন কোনো ইমেজ ফাইল দেওয়া হয়
+  if (file) {
+    const uploadResult = await uploadToCloudinary(file);
+    payload.imageUrl = uploadResult.secure_url;
+  }
+
   const updatedGearItem = await prisma.gearItem.update({
     where: { id: gearId },
     data: payload,
@@ -44,6 +60,7 @@ const deleteGearFromDB = async (gearId: string, providerId: string) => {
 
   return deleted;
 };
+
 const getProviderOrdersFromDB = async (providerId: string) => {
   const providerOrders = await prisma.rentalOrder.findMany({
     where: {

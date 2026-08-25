@@ -18,4 +18,7 @@ export default {
   SEED_ADMIN_NAME: process.env.SEED_ADMIN_NAME,
   SEED_ADMIN_EMAIL: process.env.SEED_ADMIN_EMAIL,
   SEED_ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD,
+  cloud_name: process.env.CLOUD_NAME,
+  cloud_api_key: process.env.CLOUD_API_KEY,
+  cloud_api_secret: process.env.CLOUD_API_SECRET,
 };
