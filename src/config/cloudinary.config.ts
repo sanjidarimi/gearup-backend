@@ -1,10 +1,9 @@
 import { v2 as cloudinary } from "cloudinary";
-import config from ".";
-
+import config from "./index";
 cloudinary.config({
-  cloud_name: config.cloud_name,
-  cloud_api_key: config.cloud_api_key,
-  cloud_api_secret: config.cloud_api_secret,
+  cloud_name: config.cloudinary.cloud_name,
+  api_key: config.cloudinary.api_key,
+  api_secret: config.cloudinary.api_secret,
 });
 
 export const cloudinaryUpload = cloudinary;

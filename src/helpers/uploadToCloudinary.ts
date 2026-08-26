@@ -1,6 +1,7 @@
 import { UploadApiResponse } from "cloudinary";
-import { cloudinaryUpload } from "../config/cloudinary.config";
+
 import streamifier from "streamifier";
+import { cloudinaryUpload } from "../config/cloudinary.config";
 
 export const uploadToCloudinary = async (
   file: Express.Multer.File,

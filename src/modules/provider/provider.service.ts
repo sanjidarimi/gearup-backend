@@ -29,12 +29,10 @@ const updateGearInDB = async (
   payload: Partial<GearItem>,
   file?: Express.Multer.File,
 ): Promise<GearItem> => {
-  // চেক করা হচ্ছে গিয়ারটি এক্সিস্ট করে কিনা এবং ইউজার অথরাইজড কিনা
   await prisma.gearItem.findFirstOrThrow({
     where: { id: gearId, providerId },
   });
 
-  // যদি আপডেট করার সময় নতুন কোনো ইমেজ ফাইল দেওয়া হয়
   if (file) {
     const uploadResult = await uploadToCloudinary(file);
     payload.imageUrl = uploadResult.secure_url;
