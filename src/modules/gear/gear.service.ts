@@ -1,4 +1,4 @@
-import { GearItem, Prisma } from "../../../generated/prisma/client";
+import { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
 const getGearIntoDB = async (query: {
@@ -24,14 +24,13 @@ const getGearIntoDB = async (query: {
     ...(query.brand && {
       brand: query.brand,
     }),
-    ...(query.minPrice || query.maxPrice
-      ? {
-          pricePerDay: {
-            gte: query.minPrice,
-            lte: query.maxPrice,
-          },
-        }
-      : {}),
+
+    ...((query.minPrice !== undefined || query.maxPrice !== undefined) && {
+      pricePerDay: {
+        ...(query.minPrice !== undefined && { gte: query.minPrice }),
+        ...(query.maxPrice !== undefined && { lte: query.maxPrice }),
+      },
+    }),
     ...(query.search && {
       OR: [
         { name: { contains: query.search, mode: "insensitive" } },
@@ -90,6 +89,5 @@ const getSingleGearIntoDB = async (gearId: string) => {
 
 export const gearService = {
   getGearIntoDB,
-
   getSingleGearIntoDB,
 };

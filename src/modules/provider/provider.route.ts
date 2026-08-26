@@ -16,11 +16,7 @@ router.put(
   providerController.updateGear,
 );
 
-router.delete(
-  "/gear/:id",
-
-  providerController.deleteGear,
-);
+router.delete("/gear/:id", providerController.deleteGear);
 
 router.get("/orders", providerController.getProviderOrders);
 router.patch("/orders/:id", providerController.updateOrderStatus);
