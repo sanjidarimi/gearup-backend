@@ -8,6 +8,16 @@ import { AppError } from "../../error/AppError";
 import { prisma } from "../../lib/prisma";
 import { uploadToCloudinary } from "../../helpers/uploadToCloudinary";
 
+const getProviderGearsFromDB = async (
+  providerId: string,
+): Promise<GearItem[]> => {
+  const result = await prisma.gearItem.findMany({
+    where: { providerId },
+    orderBy: { createdAt: "desc" },
+  });
+  return result;
+};
+
 const createGearIntoDB = async (
   payload: Prisma.GearItemUncheckedCreateInput,
   file?: Express.Multer.File,
@@ -146,4 +156,5 @@ export const providerService = {
   createGearIntoDB,
   getProviderOrdersFromDB,
   updateOrderStatusInDB,
+  getProviderGearsFromDB,
 };

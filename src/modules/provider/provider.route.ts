@@ -3,6 +3,7 @@ import { providerController } from "./provider.controller";
 import { fileUploader } from "../../helpers/fileUploader";
 
 const router = Router();
+router.get("/gear", providerController.getProviderGears);
 router.post(
   "/gear",
   fileUploader.upload.single("file"),

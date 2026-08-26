@@ -5,6 +5,19 @@ import { catchAsync } from "../../utils/CatchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { providerService } from "./provider.service";
 
+const getProviderGears = catchAsync(async (req: Request, res: Response) => {
+  const providerId = req.user?.id;
+  if (!providerId) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access");
+  }
+  const result = await providerService.getProviderGearsFromDB(providerId);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Provider gear items retrieved successfully",
+    data: result,
+  });
+});
 const createGear = catchAsync(async (req: Request, res: Response) => {
   const providerId = req.user?.id;
   const bodyData = req.body.data ? JSON.parse(req.body.data) : req.body;
@@ -96,4 +109,5 @@ export const providerController = {
   deleteGear,
   getProviderOrders,
   updateOrderStatus,
+  getProviderGears,
 };
