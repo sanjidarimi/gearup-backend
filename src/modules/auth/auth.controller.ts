@@ -24,7 +24,7 @@ const loginUser = catchAsync(
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "none",
+
       path: "/",
       maxAge: 1000 * 60 * 60 * 24,
     });
@@ -32,7 +32,6 @@ const loginUser = catchAsync(
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "none",
       path: "/",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
@@ -62,7 +61,7 @@ const refreshToken = catchAsync(
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "none",
+
       path: "/",
       maxAge: 1000 * 60 * 60 * 24,
     });
