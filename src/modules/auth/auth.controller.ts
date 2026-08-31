@@ -23,10 +23,9 @@ const loginUser = catchAsync(
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
-
-      path: "/",
-      maxAge: 1000 * 60 * 60 * 24,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
@@ -60,10 +59,9 @@ const refreshToken = catchAsync(
     const { accessToken } = await authService.createRefreshToken(refreshToken);
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
-
-      path: "/",
-      maxAge: 1000 * 60 * 60 * 24,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     sendResponse(res, {
       success: true,

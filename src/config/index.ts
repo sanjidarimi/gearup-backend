@@ -5,7 +5,7 @@ dotenv.config({ path: path.join(process.cwd(), ".env") });
 export default {
   port: process.env.PORT,
   database_url: process.env.DATABASE_URL,
-  app_url: process.env.APP_URL,
+  frontend_app_url: process.env.FRONTEND_APP_URL,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
   jwt_access_secret: process.env.JWT_ACCESS_SECRET as string,
   jwt_refresh_secret: process.env.JWT_REFRESH_SECRET as string,
@@ -18,6 +18,7 @@ export default {
   SEED_ADMIN_NAME: process.env.SEED_ADMIN_NAME,
   SEED_ADMIN_EMAIL: process.env.SEED_ADMIN_EMAIL,
   SEED_ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD,
+  node_env: process.env.NODE_ENV,
   cloudinary: {
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.CLOUD_API_KEY,
