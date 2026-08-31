@@ -20,7 +20,7 @@ const app: Application = express();
 app.use("/api/payment/webhook", express.raw({ type: "application/json" }));
 app.use(
   cors({
-    origin: config.frontend_app_url,
+    origin: config.app_url,
     credentials: true,
   }),
 );
