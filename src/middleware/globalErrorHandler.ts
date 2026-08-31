@@ -22,7 +22,7 @@ export const globalErrorHandler: ErrorRequestHandler = (
     stack = err.stack;
   }
 
-  if (config.frontend_app_url === "production") {
+  if (config.frontend_app_url === "development") {
     return res.status(statusCode).json({
       success: false,
       message,
