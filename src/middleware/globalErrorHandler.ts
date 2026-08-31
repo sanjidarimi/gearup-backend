@@ -1,4 +1,3 @@
-// src/middlewares/globalErrorHandler.ts
 import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import config from "../config";
@@ -23,7 +22,7 @@ export const globalErrorHandler: ErrorRequestHandler = (
     stack = err.stack;
   }
 
-  if (config.app_url === "development") {
+  if (config.frontend_app_url === "production") {
     return res.status(statusCode).json({
       success: false,
       message,
