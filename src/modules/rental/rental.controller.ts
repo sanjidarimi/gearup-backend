@@ -44,7 +44,7 @@ const getSingleRental = catchAsync(async (req: Request, res: Response) => {
 const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
-  console.log(status);
+
   const providerId = req.user?.id as string;
 
   const result = await rentalService.updateOrderStatusInDB(
