@@ -21,9 +21,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.set("trust proxy", 1);
+const allowedOrigins = config.app_url
+  ? config.app_url.split(",").map((o) => o.trim())
+  : ["http://localhost:3000"];
+
 app.use(
   cors({
-    origin: config.app_url,
+    origin: allowedOrigins,
     credentials: true,
   }),
 );

@@ -22,7 +22,7 @@ export const globalErrorHandler: ErrorRequestHandler = (
     stack = err.stack;
   }
 
-  if (config.app_url === "development") {
+  if (config.node_env === "development") {
     return res.status(statusCode).json({
       success: false,
       message,
@@ -31,14 +31,8 @@ export const globalErrorHandler: ErrorRequestHandler = (
     });
   }
 
-  // return res.status(statusCode).json({
-  //   success: false,
-  //   message: err instanceof AppError ? message : "Internal Server Error",
-  // });
   return res.status(statusCode).json({
     success: false,
     message,
-    error: err,
-    stack: config.node_env !== "production" ? stack : undefined,
   });
 };
