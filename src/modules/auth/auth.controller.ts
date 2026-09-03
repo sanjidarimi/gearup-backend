@@ -6,6 +6,7 @@ import { authService } from "./auth.service";
 const isProduction = process.env.NODE_ENV === "production";
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
+  console.log(req, res);
   const user = await authService.createUserIntoDB(payload);
   sendResponse(res, {
     success: true,
@@ -18,7 +19,7 @@ const registerUser = catchAsync(async (req: Request, res: Response) => {
 const loginUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const payload = req.body;
-
+    console.log(req, res);
     const { accessToken, refreshToken, user } =
       await authService.getUserIntoDB(payload);
 

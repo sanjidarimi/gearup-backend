@@ -32,6 +32,7 @@ app.use(
   }),
 );
 app.get("/", (req: Request, res: Response) => {
+  console.log("app folder");
   res.send("Hello World!");
 });
 
