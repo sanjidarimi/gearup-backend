@@ -6,7 +6,9 @@ import { sendResponse } from "../../utils/sendResponse";
 import { providerService } from "./provider.service";
 
 const getProviderGears = catchAsync(async (req: Request, res: Response) => {
+  console.log("provider gear from controller");
   const providerId = req.user?.id;
+  console.log(providerId);
   if (!providerId) {
     throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access");
   }

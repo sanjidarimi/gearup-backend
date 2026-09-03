@@ -11,6 +11,7 @@ import { uploadToCloudinary } from "../../helpers/uploadToCloudinary";
 const getProviderGearsFromDB = async (
   providerId: string,
 ): Promise<GearItem[]> => {
+  console.log("provider service");
   const result = await prisma.gearItem.findMany({
     where: { providerId },
     orderBy: { createdAt: "desc" },
