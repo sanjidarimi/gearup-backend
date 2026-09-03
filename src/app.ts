@@ -20,14 +20,14 @@ const app: Application = express();
 app.use("/api/payment/webhook", express.raw({ type: "application/json" }));
 app.use(
   cors({
-    origin: config.app_url || "http://localhost:3000",
+    origin: config.app_url,
     credentials: true,
   }),
 );
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-
+app.set("trust proxy", 1);
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
