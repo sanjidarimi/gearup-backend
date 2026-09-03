@@ -11,11 +11,11 @@ import { jwtUtils } from "../utils/jwt";
 
 export const authorize = (...requiredRoles: UserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.cookies.accessToken
-      ? req.cookies.accessToken
-      : req.headers.authorization?.startsWith("Bearer ")
+    const token =
+      req.cookies?.accessToken ||
+      (req.headers.authorization?.startsWith("Bearer ")
         ? req.headers.authorization.split(" ")[1]
-        : req.headers.authorization;
+        : req.headers.authorization);
 
     if (!token) {
       throw new AppError(
