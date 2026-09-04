@@ -3,7 +3,7 @@ import httpStatus from "http-status";
 import { catchAsync } from "../../utils/CatchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { authService } from "./auth.service";
-const isProduction = process.env.NODE_ENV === "production";
+// const isProduction = process.env.NODE_ENV === "production";
 const registerUser = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
 
@@ -25,15 +25,17 @@ const loginUser = catchAsync(
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
+      path: "/",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
@@ -62,8 +64,9 @@ const refreshToken = catchAsync(
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     sendResponse(res, {
