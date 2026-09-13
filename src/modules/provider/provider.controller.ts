@@ -5,10 +5,18 @@ import { catchAsync } from "../../utils/CatchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { providerService } from "./provider.service";
 
+// Multipart requests carry the gear fields as a JSON string under "data".
+const parseGearBody = (req: Request) => {
+  if (typeof req.body?.data !== "string") return req.body ?? {};
+  try {
+    return JSON.parse(req.body.data);
+  } catch {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid gear data format");
+  }
+};
+
 const getProviderGears = catchAsync(async (req: Request, res: Response) => {
-  console.log("provider gear from controller");
   const providerId = req.user?.id;
-  console.log(providerId);
   if (!providerId) {
     throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access");
   }
@@ -20,12 +28,14 @@ const getProviderGears = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-const createGear = catchAsync(async (req: Request, res: Response) => {
-  const providerId = req.user?.id;
-  const bodyData = req.body.data ? JSON.parse(req.body.data) : req.body;
-  const payload = { ...bodyData, providerId };
 
-  const result = await providerService.createGearIntoDB(payload, req.file);
+const createGear = catchAsync(async (req: Request, res: Response) => {
+  const providerId = req.user?.id as string;
+  const result = await providerService.createGearIntoDB(
+    providerId,
+    parseGearBody(req),
+    req.file,
+  );
 
   sendResponse(res, {
     success: true,
@@ -39,11 +49,10 @@ const updateGear = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
   const providerId = req.user?.id as string;
 
-  const bodyData = req.body.data ? JSON.parse(req.body.data) : req.body;
   const result = await providerService.updateGearInDB(
     id,
     providerId,
-    bodyData,
+    parseGearBody(req),
     req.file,
   );
 
@@ -88,7 +97,7 @@ const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
   if (!providerId) {
     throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access");
   }
-  const { status } = req.body;
+  const { status } = req.body ?? {};
   if (!status) {
     throw new AppError(httpStatus.BAD_REQUEST, "Status is required");
   }

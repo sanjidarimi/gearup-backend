@@ -6,19 +6,25 @@ import httpStatus from "http-status";
 const createCategoryIntoDB = async (
   payload: Prisma.CategoryCreateInput,
 ): Promise<Category> => {
-  const isCategoryExist = await prisma.category.findUnique({
-    where: { name: payload.name },
+  const name = typeof payload?.name === "string" ? payload.name.trim() : "";
+
+  if (!name) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Category name is required");
+  }
+
+  const isCategoryExist = await prisma.category.findFirst({
+    where: { name: { equals: name, mode: "insensitive" } },
   });
 
   if (isCategoryExist) {
     throw new AppError(
       httpStatus.CONFLICT,
-      `Category with name '${payload.name}' already exists.`,
+      `Category with name '${name}' already exists.`,
     );
   }
 
   const newCategory = await prisma.category.create({
-    data: payload,
+    data: { name },
   });
 
   return newCategory;

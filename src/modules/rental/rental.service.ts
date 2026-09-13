@@ -1,12 +1,22 @@
 import httpStatus from "http-status";
-import { RentalStatus } from "../../../generated/prisma/enums";
+import { RentalStatus, UserRole } from "../../../generated/prisma/enums";
 import { AppError } from "../../error/AppError";
 import { prisma } from "../../lib/prisma";
 import { IRentalOrderPayload } from "./rental.interface";
+
+const DAY_IN_MS = 1000 * 3600 * 24;
+
 const createRentalIntoDB = async (payload: IRentalOrderPayload) => {
   const { customerId, startDate, endDate, items } = payload;
   const start = new Date(startDate);
   const end = new Date(endDate);
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Valid start and end dates are required",
+    );
+  }
 
   if (start >= end) {
     throw new AppError(
@@ -15,8 +25,36 @@ const createRentalIntoDB = async (payload: IRentalOrderPayload) => {
     );
   }
 
+  // Allow "today" in any timezone, but nothing earlier.
+  if (start.getTime() < Date.now() - DAY_IN_MS) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Start date can't be in the past",
+    );
+  }
+
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Add at least one gear item to the rental",
+    );
+  }
+
+  for (const item of items) {
+    if (
+      !item?.gearItemId ||
+      !Number.isInteger(item.quantity) ||
+      item.quantity < 1
+    ) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Each item needs a gear ID and a quantity of at least 1",
+      );
+    }
+  }
+
   const timeDifference = end.getTime() - start.getTime();
-  const totalDays = Math.ceil(timeDifference / (1000 * 3600 * 24));
+  const totalDays = Math.ceil(timeDifference / DAY_IN_MS);
 
   const newOrder = await prisma.$transaction(async (tx) => {
     let calculateTotalPrice = 0;
@@ -31,6 +69,13 @@ const createRentalIntoDB = async (payload: IRentalOrderPayload) => {
         throw new AppError(
           httpStatus.NOT_FOUND,
           `Gear item with ID ${item.gearItemId} not found`,
+        );
+      }
+
+      if (gear.providerId === customerId) {
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          "You can't rent your own gear",
         );
       }
 
@@ -81,7 +126,7 @@ const createRentalIntoDB = async (payload: IRentalOrderPayload) => {
         items: {
           include: {
             gearItem: {
-              select: { name: true, brand: true, imageUrl: true },
+              select: { id: true, name: true, brand: true, imageUrl: true },
             },
           },
         },
@@ -134,7 +179,13 @@ const getSingleRentalFromDB = async (
     throw new AppError(httpStatus.NOT_FOUND, "Rental order not found");
   }
 
-  if (userRole === "CUSTOMER" && rental.customerId !== userId) {
+  const canView =
+    userRole === UserRole.ADMIN ||
+    (userRole === UserRole.CUSTOMER && rental.customerId === userId) ||
+    (userRole === UserRole.PROVIDER &&
+      rental.items.some((item) => item.gearItem.providerId === userId));
+
+  if (!canView) {
     throw new AppError(
       httpStatus.FORBIDDEN,
       "You do not have access to view this rental order",

@@ -62,16 +62,17 @@ const confirmPayment = catchAsync(async (req: Request, res: Response) => {
     throw new AppError(400, "Session ID is required");
   }
 
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const result = await paymentService.confirmCheckoutSession(
+    sessionId,
+    req.user?.id as string,
+    req.user?.role as string,
+  );
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: "Payment session status retrieved",
-    data: {
-      status: session.payment_status,
-      customerEmail: session.customer_details?.email,
-    },
+    data: result,
   });
 });
 

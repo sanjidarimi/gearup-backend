@@ -59,7 +59,7 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
 });
 const refreshToken = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies?.refreshToken ?? req.body?.refreshToken;
     const { accessToken } = await authService.createRefreshToken(refreshToken);
 
     res.cookie("accessToken", accessToken, {

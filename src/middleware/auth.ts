@@ -33,7 +33,7 @@ export const authorize = (...requiredRoles: UserRole[]) => {
       );
     }
 
-    const { name, email, role, id } = verifyToken.data as JwtPayload;
+    const { role, id } = verifyToken.data as JwtPayload;
 
     if (requiredRoles.length && !requiredRoles.includes(role)) {
       throw new AppError(
@@ -47,17 +47,32 @@ export const authorize = (...requiredRoles: UserRole[]) => {
     });
 
     if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, "Account not found");
+      throw new AppError(httpStatus.UNAUTHORIZED, "Account not found");
     }
 
     if (user.status === "SUSPENDED") {
       throw new AppError(
-        httpStatus.NOT_ACCEPTABLE,
-        "Your account has been blocked",
+        httpStatus.FORBIDDEN,
+        "Your account has been suspended",
       );
     }
 
-    req.user = { id, email, name, role };
+    // Trust the database over the token for role, so role changes apply
+    // immediately.
+    if (requiredRoles.length && !requiredRoles.includes(user.role)) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "FORBIDDEN: You do not have permission to access this resource",
+      );
+    }
+
+    req.user = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      status: user.status,
+    };
 
     next();
   });

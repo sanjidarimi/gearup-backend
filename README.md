@@ -201,34 +201,24 @@ npm install
 
 # ⚙ Environment Variables
 
-Create a `.env` file.
+Copy `.env.example` to `.env` and fill in the values.
 
-```env
-# Server
-PORT=5000
-NODE_ENV=development
-
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/gear_rental_db?schema=public"
-
-# Authentication
-JWT_SECRET="your-secret"
-JWT_EXPIRES_IN="7d"
-
-# Stripe
-STRIPE_SECRET_KEY="sk_test_xxxxxxxxx"
-STRIPE_WEBHOOK_SECRET="whsec_xxxxxxxxx"
-
-# Client URLs
-CLIENT_URL=http://localhost:3000
-CLIENT_SUCCESS_URL=http://localhost:3000/payment/success
-CLIENT_CANCEL_URL=http://localhost:3000/payment/cancel
-
-# Seed Admin
-SEED_ADMIN_NAME="Admin"
-SEED_ADMIN_EMAIL="admin@example.com"
-SEED_ADMIN_PASSWORD="your-secure-password"
+```bash
+cp .env.example .env
 ```
+
+| Variable | Purpose |
+|----------|---------|
+| `PORT` | API port (the frontend expects `5000`) |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `BCRYPT_SALT_ROUNDS` | Password hashing cost |
+| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Token signing secrets |
+| `JWT_ACCESS_EXPIRES_IN`, `JWT_REFRESH_EXPIRES_IN` | Token lifetimes, e.g. `1d`, `7d` |
+| `APP_URL` | Frontend origin(s) for CORS, comma separated |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe Checkout + webhook |
+| `CLIENT_SUCCESS_URL`, `CLIENT_CENCEL_URL` | Stripe return pages (`/payment/success`, `/payment/cancel` on the frontend) |
+| `CLOUD_NAME`, `CLOUD_API_KEY`, `CLOUD_API_SECRET` | Cloudinary image uploads |
+| `SEED_ADMIN_NAME`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | Admin account created by `npm run seed` |
 
 ---
 

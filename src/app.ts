@@ -7,6 +7,7 @@ import config from "./config";
 import { AppError } from "./error/AppError";
 import { authorize } from "./middleware/auth";
 import { globalErrorHandler } from "./middleware/globalErrorHandler";
+import { adminRoutes } from "./modules/admin/admin.route";
 import { authRoutes } from "./modules/auth/auth.route";
 import { categoryRoutes } from "./modules/category/category.route";
 import { gearRoute } from "./modules/gear/gear.route";
@@ -21,9 +22,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.set("trust proxy", 1);
-const allowedOrigins = config.app_url
-  ? config.app_url.split(",").map((o) => o.trim())
-  : ["http://localhost:3000"];
+
+// The Next.js frontend proxies API calls server-side, but keep CORS open for
+// the configured frontend origins and local development.
+const allowedOrigins = Array.from(
+  new Set([...config.app_urls, "http://localhost:3000"]),
+);
 
 app.use(
   cors({
@@ -37,12 +41,14 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/gear", gearRoute);
-app.use("/api/provider", authorize(UserRole.PROVIDER), providerRouter);
 app.use("/api/categories", categoryRoutes);
-app.use("/api", authorize(UserRole.CUSTOMER), rentalRoutes);
-
+app.use("/api/provider", authorize(UserRole.PROVIDER), providerRouter);
+app.use("/api/admin", authorize(UserRole.ADMIN), adminRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/review", reviewRoutes);
+// Rental routes live at the API root (/rentals, /my-rentals) and guard each
+// route themselves, so they must not block anything mounted above.
+app.use("/api", rentalRoutes);
 
 app.get("/api/payments/success", (req, res) => {
   res.send({
